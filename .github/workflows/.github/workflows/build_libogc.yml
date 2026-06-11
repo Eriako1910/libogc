@@ -1,0 +1,34 @@
+name: Compilar libogc2
+
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: devkitpro/devkitppc:latest
+
+    steps:
+      - name: Descargar codigo fuente
+        uses: actions/checkout@v4
+
+      - name: Actualizar e instalar dependencias
+        run: |
+          dkp-pacman -Syu --noconfirm
+          dkp-pacman -S --noconfirm gamecube-dev
+
+      - name: Compilar libogc2 con Makefile
+        run: |
+          make clean
+          make
+
+      - name: Organizar archivos compilados
+        run: |
+          mkdir -p output/libogc2
+          cp -r include output/libogc2/
+          cp -r lib output/libogc2/
+
+      - name: Subir Libreria Compilada
+        uses: actions/upload-artifact@v4
+        with:
+          name: libogc2-compilada
+          path: output/libogc2/
