@@ -14,18 +14,20 @@ jobs:
       - name: Actualizar e instalar dependencias
         run: |
           dkp-pacman -Syu --noconfirm
-          dkp-pacman -S --noconfirm gamecube-dev
+          dkp-pacman -S --noconfirm gamecube-dev cmake
 
-      - name: Compilar libogc2 con Makefile
+      - name: Configurar y Compilar con CMake
         run: |
-          make clean
+          mkdir build
+          cd build
+          cmake -DCMAKE_TOOLCHAIN_FILE=/opt/devkitpro/cmake/devkitPPC.cmake ..
           make
 
       - name: Organizar archivos compilados
         run: |
           mkdir -p output/libogc2
           cp -r include output/libogc2/
-          cp -r lib output/libogc2/
+          if [ -d "build/lib" ]; then cp -r build/lib output/libogc2/; else cp -r lib output/libogc2/; fi
 
       - name: Subir Libreria Compilada
         uses: actions/upload-artifact@v4
